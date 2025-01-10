@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Plant Monitoring System</title>
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="stylesheet" type="text/css" href="style.css">
+  <script>
+    var tempThreshold = 37;
+    var humidThreshold = 60;
+    var soilMThreshold = 80;
+    setInterval(getData, 5000);
+
+    function getData() {
+      var xhr1 = new XMLHttpRequest();
+      xhr1.open('GET', '/temperature', true);
+      xhr1.onload = function() {
+        if (xhr1.readyState == 4 && xhr1.status == 200) {
+          document.getElementById('temperature').innerHTML = xhr1.responseText;
+          if (parseFloat(xhr1.responseText) >= tempThreshold) {
+            window.alert("Warning: Crop Getting Too Much Sunlight/Heat");
+          }
+        }
+      };
+      xhr1.send();
+
+      var xhr2 = new XMLHttpRequest();
+      xhr2.open('GET', '/humidity', true);
+      xhr2.onload = function() {
+        if (xhr2.readyState == 4 && xhr2.status == 200) {
+          document.getElementById('humidity').innerHTML = xhr2.responseText;
+          if (parseFloat(xhr2.responseText) < humidThreshold) {
+            window.alert("Warning: Crop Low on Humidity");
+          }
+        }
+      };
+      xhr2.send();
+
+      var xhr3 = new XMLHttpRequest();
+      xhr3.open('GET', '/soil_moisture', true);
+      xhr3.onload = function() {
+        if (xhr3.readyState == 4 && xhr3.status == 200) {
+          document.getElementById('soil_moisture').innerHTML = xhr3.responseText;
+          if (parseFloat(xhr3.responseText) < soilMThreshold) {
+            window.alert("Warning: Crop Low on Soil Moisture");
+          }
+        }
+      };
+      xhr3.send();
+    }
+</script>
+</head>
+<body>
+
+  <div class="header">
+    <a href="index.html" class="logo">Plant Monitoring System</a>
+    <div class="header-right">
+      <a href="about.html">About us</a>
+    </div>
+  </div>
+  <div class="box">
+    <div class="sensorBox">
+      <h1>Environmental Data</h1>
+    </div>  
+    <div class="tempBox">
+      <div class="tempSensor">Temperature</div>
+      <div class="tempValue"><span id="temperature">0</span> °C</div>
+    </div>
+    <div class="humidBox">
+      <div class="humidSensor">Humidity</div>
+      <div class="humidValue"><span id="humidity">0</span> %</div>
+    </div>
+    <div class="soilmBox">
+      <div class="soilmSensor">Soil Moisture</div>
+      <div class="soilmValue"><span id="soil_moisture">0</span> %</div>
+    </div>
+  </div>
+</body>
+</html>

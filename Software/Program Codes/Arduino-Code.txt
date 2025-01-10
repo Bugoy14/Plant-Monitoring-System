@@ -1,0 +1,79 @@
+#include <OneWire.h>
+#include <DHT.h>
+#include <Wire.h>
+#include <ArduinoJson.h>
+#include <SoftwareSerial.h>
+
+#define relayPin 3
+
+#define DHTPIN 2
+#define DHTTYPE DHT22 
+DHT dht(DHTPIN, DHTTYPE);
+
+#define moistureAn A0
+
+float soilMoistureThreshold = 60;
+
+
+SoftwareSerial nodemcu(5, 6);
+
+unsigned long lastTime = 0;
+unsigned long timerDelay = 5000;
+
+void setup() {
+  pinMode(relayPin, OUTPUT);
+  digitalWrite(relayPin, HIGH);
+  Serial.begin(9600);
+  nodemcu.begin(9600);
+  dht.begin();
+
+  delay(1000);
+  Serial.println("Program started");
+}
+
+float getTemperature(){
+  float celcius = dht.readTemperature();
+  return celcius;
+}
+
+float getSoilMoisture(){
+  float moisture = analogRead(moistureAn);
+  float moisture_percentage = ( 100 - ((moisture / 1023.00) * 100 ));
+  // return moisture_percentage;
+  return moisture_percentage;
+}
+
+float getHumidity(){
+  float humidity = dht.readHumidity();
+  return humidity;
+}
+
+void loop() {
+  getTemperature();
+  getHumidity();
+  getSoilMoisture();
+  
+   if(getSoilMoisture() <= soilMoistureThreshold){
+     digitalWrite(relayPin, LOW);
+   }else{
+     digitalWrite(relayPin, HIGH);
+   }
+
+  if ((millis() - lastTime) > timerDelay) {
+    StaticJsonBuffer<1000> jsonBuffer;
+    JsonObject& data = jsonBuffer.createObject();
+    //Obtain Temp and Hum data
+
+//    Assign collected data to JSON Object
+    data["temperature"]= getTemperature();
+    data["humidity"] = getHumidity();
+    data["soil_moisture"] = getSoilMoisture(); 
+
+    data.printTo(nodemcu);
+    jsonBuffer.clear();
+
+    Serial.println("Printing..");
+    delay(timerDelay);
+    lastTime = millis();
+  }
+}
