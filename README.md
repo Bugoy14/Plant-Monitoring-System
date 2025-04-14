@@ -6,7 +6,7 @@ Concepts Used:
 1. Renewable Energy
 2. Agriculture
 3. Automation
-4. Web Server
+4. Web Application
 
 Equiptments Used:
 1. Arduino Uno R3 - to gather the data from the sensors
